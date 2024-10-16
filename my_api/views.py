@@ -4,6 +4,9 @@ from base.models import Item
 from .serializers import ItemSerializer
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.views.decorators.cache import cache_page
+from django.core.cache import cache
+
 @api_view(['GET'])
 def get_items(request):
     "Fetch all items"
@@ -25,13 +28,21 @@ def add_item(request):
     return Response(serializer.data)
 
 @api_view(['GET', 'DELETE', 'PUT'])
-def get_item(request, id=None):
+def get_item(request, item_id=None):
     "Fetch single item"
+
+    #try to fetch item from cache
+    if item := cache.get(item_id):
+        print('fetched from cache')
+        pass
+
 
     #check item exists or not
     try:
-        item = Item.objects.get(id=id)
+        item = Item.objects.get(id=item_id)
     except ObjectDoesNotExist:
+        cache.set(item_id, item)
+        print('added into cache')
         return Response(status=404, data={"error": "item not found"})
 
     if request.method == 'DELETE':
