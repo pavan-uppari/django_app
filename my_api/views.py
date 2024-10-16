@@ -7,6 +7,9 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.views.decorators.cache import cache_page
 from django.core.cache import cache
 
+import logging
+logger = logging.getLogger('my_app_logs')
+
 @api_view(['GET'])
 def get_items(request):
     "Fetch all items"
@@ -31,19 +34,21 @@ def add_item(request):
 def get_item(request, item_id=None):
     "Fetch single item"
 
+    item = None
     #try to fetch item from cache
     if item := cache.get(item_id):
-        print('fetched from cache')
+        logger.info("fetched item from cache")
         pass
 
 
     #check item exists or not
-    try:
-        item = Item.objects.get(id=item_id)
-    except ObjectDoesNotExist:
-        cache.set(item_id, item)
-        print('added into cache')
-        return Response(status=404, data={"error": "item not found"})
+    if item is None: #not available in cache
+        try:
+            item = Item.objects.get(id=item_id)
+            cache.set(item_id, item)
+            logger.info("added item to cache")
+        except ObjectDoesNotExist:
+            return Response(status=404, data={"error": "item not found"})
 
     if request.method == 'DELETE':
         item.delete()
