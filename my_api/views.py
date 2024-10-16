@@ -25,10 +25,10 @@ def add_item(request):
 
     serializer = ItemSerializer(data=request.data)
     if not serializer.is_valid():
-        return Response(status=500, data=serializer.errors)
+        return Response(status=400, data=serializer.errors)
 
     serializer.save()
-    return Response(serializer.data)
+    return Response(serializer.data, status=201)
 
 @api_view(['GET', 'DELETE', 'PUT'])
 def get_item(request, item_id=None):
@@ -57,7 +57,7 @@ def get_item(request, item_id=None):
     if request.method == 'PUT':
         serializer = ItemSerializer(instance=item, data=request.data)
         if not serializer.is_valid():
-            return Response(status=500, data=serializer.errors)
+            return Response(status=400, data=serializer.errors)
 
         serializer.save()
         return Response(serializer.data)
