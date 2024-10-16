@@ -52,7 +52,7 @@ def get_item(request, item_id=None):
 
     if request.method == 'DELETE':
         item.delete()
-        return Response(status=204, data={"success": f"item {item.name} deleted"})
+        return Response(status=204)
 
     if request.method == 'PUT':
         serializer = ItemSerializer(instance=item, data=request.data)

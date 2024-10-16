@@ -24,7 +24,7 @@ class ItemTests(APITestCase):
         response = self.client.delete(url)
 
         assert response.status_code == 204
-        assert response.data == {'success': 'item Item 1 deleted'}
+        assert response.data == None
 
     def test_invalid_delete_item(self):
 
